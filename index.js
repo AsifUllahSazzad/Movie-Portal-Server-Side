@@ -43,7 +43,7 @@ async function run() {
 
         const result = await cursor.toArray();
 
-        res.send(result)
+        res.send(result);
     })
 
     app.get('/movies/:title', async(req, res) => {
@@ -53,7 +53,7 @@ async function run() {
 
       const result = await movieDatabase.findOne(query);
 
-      res.send(result)
+      res.send(result);
     })
 
     // post for add new movie and save in database
@@ -63,7 +63,18 @@ async function run() {
 
         const result = await movieDatabase.insertOne(movieData);
 
-        res.send(result)
+        res.send(result);
+    })
+
+    // delete for delete movie from database
+    app.delete('/movies/:title', async(req, res) =>{
+      const title = req.params.title;
+
+      const query = {"Movie Title": title};
+
+      const result = await movieDatabase.deleteOne(query);
+
+      res.send(result);
     })
 
     // Send a ping to confirm a successful connection

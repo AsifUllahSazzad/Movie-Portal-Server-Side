@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import env from 'dotenv/config'
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 
 const app = express();
 const port = 3000 || process.env.PORT
@@ -36,18 +36,30 @@ async function run() {
     // Database create
     const movieDatabase = client.db('MoviePortalDatabase').collection('MoviesCollection')
 
-    // Backend Code
+    // get for all movies json data
     app.get('/movies', async (req, res)=> {
-        const cursor = await movieDatabase.find();
+      
+        const cursor = movieDatabase.find();
 
         const result = await cursor.toArray();
 
         res.send(result)
     })
 
-    // post
+    app.get('/movies/:title', async(req, res) => {
+      const title = req.params.title;
+
+      const query = {"Movie Title": title};
+
+      const result = await movieDatabase.findOne(query);
+
+      res.send(result)
+    })
+
+    // post for add new movie and save in database
     app.post('/movies', async (req, res) => {
         const movieData = req.body;
+
 
         const result = await movieDatabase.insertOne(movieData);
 

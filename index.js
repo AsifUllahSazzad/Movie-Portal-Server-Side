@@ -80,57 +80,16 @@ async function run() {
     // favorites collection create
     const favoritesCollection = client.db('MoviePortalDatabase').collection('FavoritesMovies')
 
-    // get favorites movie
-    app.get('/favoritesMovies', async(req, res) =>{
-      
-      const cursor = favoritesCollection.find();
-      const result = await cursor.toArray();
+    // get individual favorites movie server link
+    app.get('/favoritesMovies/:email', async (req, res) =>{
+      const email = req.params.email
 
-        res.send(result);
+      const query = {Email: email}
+
+      const result = await favoritesCollection.find(query).toArray();
+
+      res.send(result)
     })
-
-    // post favorites movie
-    app.post('/favoritesMovies', async (req, res) =>{
-      const favMovieData = req.body;
-
-      try{
-        const existingMovie = await favoritesCollection.findOne({
-          MovieTitle: favMovieData.MovieTitle,
-          Email: favMovieData.Email
-        })
-
-        if(existingMovie){
-          return res.status(409).json({
-            message: 'Movie already in favorites',
-            alreadyExists: true
-          })
-        }
-
-
-        const result = await favoritesCollection.insertOne(favMovieData);
-  
-        res.status(201).json(result)
-      }
-      catch(error){
-        return res.status(500).json({
-          message: 'Server Error',
-           error: error.message
-        })
-      }
-
-    })
-
-
-    //    app.get('/favoritesMovie/:email', async(req, res) =>{
-    //   const email = req.params.email
-
-    //     const query = {Email: email}
-
-    //     const result = await favoritesCollection.findOne(query);
-
-
-    //     res.send(result);
-    // })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

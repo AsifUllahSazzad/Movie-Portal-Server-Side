@@ -83,58 +83,52 @@ async function run() {
     // post(add) favorites movie
     app.post("/favoritesMovies", async (req, res) => {
       const movieData = req.body;
+      
+      const filter = {
+        Email: movieData.Email,
+        MovieTitle: movieData.MovieTitle,
+      };
 
-      console.log(movieData.Email)
+      try {
+        const existingMovie = await favoritesCollection.findOne(filter);
 
-      const filter = {Email: movieData.Email, MovieTitle: movieData.MovieTitle}
-
-      // console.log(filter)
-
-      try{
-        const existingMovie = await favoritesCollection.findOne(filter)
-
-        if(existingMovie){
+        if (existingMovie) {
           return res.status(409).json({
             alreadyExists: true,
-            message: "Already Exists"
-          })
+            message: "Already Exists",
+          });
         }
-      }
-      catch(error){
+      } catch (error) {
         res.status(500).json({
-          message: 'Server Error',
-          error: ''
-        })
+          message: "Server Error",
+          error: "",
+        });
       }
 
       const result = await favoritesCollection.insertOne(movieData);
 
-        res.send(result);
-
+      res.send(result);
     });
 
     // get individual favorites movie server link
     app.get("/favoritesMovies/:email", async (req, res) => {
       const email = req.params.email;
 
-
       const query = { Email: email };
 
       const result = await favoritesCollection.find(query).toArray();
 
-
       // individual movie find
-      const {title} = req.query;
-      const filter = {Email: email, MovieTitle: title}
-      
+      const { title } = req.query;
+      const filter = { Email: email, MovieTitle: title };
 
       const ans = await favoritesCollection.findOne(filter);
 
-      if(ans){
+      if (ans) {
         return res.status(409).json({
           exists: true,
-          message: 'Already exists'
-        })
+          message: "Already exists",
+        });
       }
 
       res.send(result);

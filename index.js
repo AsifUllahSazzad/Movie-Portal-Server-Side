@@ -83,27 +83,6 @@ async function run() {
     // post(add) favorites movie
     app.post("/favoritesMovies", async (req, res) => {
       const movieData = req.body;
-      
-      const filter = {
-        Email: movieData.Email,
-        MovieTitle: movieData.MovieTitle,
-      };
-
-      try {
-        const existingMovie = await favoritesCollection.findOne(filter);
-
-        if (existingMovie) {
-          return res.status(409).json({
-            alreadyExists: true,
-            message: "Already Exists",
-          });
-        }
-      } catch (error) {
-        res.status(500).json({
-          message: "Server Error",
-          error: "",
-        });
-      }
 
       const result = await favoritesCollection.insertOne(movieData);
 
@@ -118,7 +97,7 @@ async function run() {
 
       const result = await favoritesCollection.find(query).toArray();
 
-      // individual movie find
+      // check individual movie exists
       const { title } = req.query;
       const filter = { Email: email, MovieTitle: title };
 
@@ -133,6 +112,21 @@ async function run() {
 
       res.send(result);
     });
+
+    // individual user movie delete on the favorites movie list
+    app.delete('/favoritesMovies', async(req, res) =>{
+        const data = req.body;
+
+        const email = data.currentUser.email;
+        const title = data.movieTitle
+
+        const query = {Email: email, MovieTitle: title}
+
+        const result = await favoritesCollection.deleteOne(query)
+
+        res.send(result)
+    })
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
